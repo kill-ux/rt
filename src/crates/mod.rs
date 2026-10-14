@@ -3,3 +3,4 @@ pub mod ray;
 pub mod objects;
 pub mod camera;
 pub mod light;
+pub mod scene;

@@ -16,10 +16,10 @@ mod tests {
 
         assert!(hit.is_some());
 
-        let t = hit.unwrap();
+        let h = hit.unwrap();
 
         // The ray enters at z = -4, so t must be 4.
-        assert!((t - 4.0).abs() < 0.000_001);
+        assert!((h.t - 4.0).abs() < 0.000_001);
     }
 
     #[test]
@@ -43,11 +43,11 @@ mod tests {
 
         assert!(hit.is_some());
 
-        let t = hit.unwrap();
+        let h = hit.unwrap();
 
         // t1 = -1: behind ray origin.
         // t2 =  1: the ray exits the sphere here.
-        assert!((t - 1.0).abs() < 0.000_001);
+        assert!((h.t - 1.0).abs() < 0.000_001);
     }
     
 
@@ -61,11 +61,11 @@ mod tests {
 
         assert!(hit.is_some());
 
-        let t = hit.unwrap();
+        let h = hit.unwrap();
 
         // Near surface is at z = -9.
         // With direction (0, 0, -1), P(t) = (0, 0, -t).
         // P(9) = (0, 0, -9): first point that touches the sphere.
-        assert!((t - 9.0).abs() < 0.000_001);
+        assert!((h.t - 9.0).abs() < 0.000_001);
     }
 }
