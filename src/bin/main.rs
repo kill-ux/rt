@@ -11,15 +11,18 @@ fn main() {
     let width = 200;
     let height = 150;
     let mut scene = Scene::new(Light::new(Vec3::new(2.0, 2.0, -5.0), 1.0));
-    scene.add(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0))); // the ball
+    scene.add(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0))); // the ball1
     scene.add(Box::new(Sphere::new(Vec3::new(0.0, -101.0, -5.0), 100.0))); // fake floor
-    scene.add(Box::new(Sphere::new(Vec3::new(4.0, 4.0, -6.0), 1.0))); // the ball
+    scene.add(Box::new(Sphere::new(
+    Vec3::new(4.12132034, 4.12132034, -5.0),
+    1.0,
+))); // ball2
 
 
-     scene.add(Box::new(Sphere::new(
-        Vec3::new(5.14495755, 5.85994341, 0.14495755),
-        1.0,
-    )));
+    //  scene.add(Box::new(Sphere::new(
+    //     Vec3::new(5.14495755, 5.85994341, 0.14495755),
+    //     1.0,
+    // )));
 
     
     let camera = Camera::new(
