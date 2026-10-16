@@ -34,12 +34,12 @@ impl Scene {
         closest
     }
 
-    pub fn is_shadowed(&self, point: Vec3, normal: Vec3) -> bool {
+    pub fn is_shadowed(&self, point: Vec3) -> bool {
         let to_light = self.light.position - point;
         let distance = to_light.length();
         let shadow_ray = Ray::new(point, to_light.normalize());
         match self.closest_hit(&shadow_ray) {
-            Some(h) => h.t < distance, // h.t < distance
+            Some(h) => h.t < distance,
             None => false,
         }
     }

@@ -41,9 +41,8 @@ fn main() {
 
             match scene.closest_hit(&ray) {
                 Some(hit) => {
-                    
                     let shadow_origin = hit.point + hit.normal * 1e-4;
-                    let brightness = if scene.is_shadowed(shadow_origin, hit.normal) {
+                    let brightness = if scene.is_shadowed(shadow_origin) {
                         0.
                     } else {
                         let light_dir = (scene.light.position - hit.point).normalize();

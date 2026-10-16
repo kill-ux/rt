@@ -1,4 +1,5 @@
 pub mod sphere;
+pub mod plane;
 use crate::{ray::Ray, vec3::Vec3};
 
 #[derive(Debug, PartialEq)]
