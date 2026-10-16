@@ -14,17 +14,15 @@ fn main() {
     scene.add(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0))); // the ball1
     scene.add(Box::new(Sphere::new(Vec3::new(0.0, -101.0, -5.0), 100.0))); // fake floor
     scene.add(Box::new(Sphere::new(
-    Vec3::new(4.12132034, 4.12132034, -5.0),
-    1.0,
-))); // ball2
-
+        Vec3::new(4.12132034, 4.12132034, -5.0),
+        1.0,
+    ))); // ball2
 
     //  scene.add(Box::new(Sphere::new(
     //     Vec3::new(5.14495755, 5.85994341, 0.14495755),
     //     1.0,
     // )));
 
-    
     let camera = Camera::new(
         Vec3::new(0.0, 0.0, 0.0),
         Vec3::new(0.0, 0.0, -1.0),
@@ -43,10 +41,9 @@ fn main() {
 
             match scene.closest_hit(&ray) {
                 Some(hit) => {
-                    // let light_dir = (scene.light.position - hit.point).normalize();
-                    // let brightness = hit.normal.dot(&light_dir).max(0.) * scene.light.intensity;
-
-                    let brightness = if scene.is_shadowed(hit.point, hit.normal) {
+                    
+                    let shadow_origin = hit.point + hit.normal * 1e-4;
+                    let brightness = if scene.is_shadowed(shadow_origin, hit.normal) {
                         0.
                     } else {
                         let light_dir = (scene.light.position - hit.point).normalize();
@@ -55,6 +52,8 @@ fn main() {
 
                     let c = (brightness * 255.).min(255.) as u8;
                     println!("{} {} {}", c, c, c);
+
+                    //  println!("255 255 255");
                 }
                 None => println!("0 0 0"),
             }
@@ -74,4 +73,3 @@ fn main() {
         }
     }
 }
-

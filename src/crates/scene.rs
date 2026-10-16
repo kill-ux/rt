@@ -1,4 +1,9 @@
-use crate::{light::Light, objects::{HitRecord, Hittable}, ray::Ray, vec3::Vec3};
+use crate::{
+    light::Light,
+    objects::{HitRecord, Hittable},
+    ray::Ray,
+    vec3::Vec3,
+};
 
 pub struct Scene {
     pub objects: Vec<Box<dyn Hittable>>,
@@ -20,7 +25,9 @@ impl Scene {
     pub fn closest_hit(&self, ray: &Ray) -> Option<HitRecord> {
         let mut closest: Option<HitRecord> = None;
         for obj in &self.objects {
-            if let Some(hit) = obj.hit(ray) && closest.as_ref().map_or(true, |c| hit.t < c.t ) {
+            if let Some(hit) = obj.hit(ray)
+                && closest.as_ref().map_or(true, |c| hit.t < c.t)
+            {
                 closest = Some(hit)
             }
         }
@@ -30,10 +37,9 @@ impl Scene {
     pub fn is_shadowed(&self, point: Vec3, normal: Vec3) -> bool {
         let to_light = self.light.position - point;
         let distance = to_light.length();
-        let shadow_origin = point + normal * 1e-4;
-        let shadow_ray = Ray::new(shadow_origin, to_light);
+        let shadow_ray = Ray::new(point, to_light.normalize());
         match self.closest_hit(&shadow_ray) {
-            Some(h) => h.t < distance,
+            Some(h) => h.t < distance, // h.t < distance
             None => false,
         }
     }
