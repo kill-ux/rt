@@ -24,19 +24,18 @@ pub fn trace(ray: &Ray, scene: &Scene, depth: u32, sky_strength: f64) -> Vec3 {
 
             // start slightly off the surface to avoid hitting ourselves
             let origin = hit.point + hit.normal * 1e-4;
-            let bounced = Ray::new(origin, dir);
+            let bounced = Ray::new(origin, dir.normalize());
             let indirect = trace(&bounced, scene, depth - 1, sky_strength);
 
-            hit.color.mul_elem(Vec3::new(direct, direct, direct) + indirect)
+            hit.color
+                .mul_elem(Vec3::new(direct, direct, direct) + indirect)
         }
         None => {
-            let blue_amount = (ray.direction.y + 1.) / 2.;
-            let white_amount = 1. - blue_amount;
+            let t = (ray.direction.y + 1.0) / 2.0;
+            let white = Vec3::new(1.0, 1.0, 1.0);
+            let blue = Vec3::new(0.5, 0.7, 1.0);
 
-            let white = Vec3::new(1., 1., 1.);
-            let blue = Vec3::new(0.5, 0.7, 1.);
-
-            return white * white_amount + blue * blue_amount;
+            (white * (1.0 - t) + blue * t) * sky_strength
         }
     }
 }
