@@ -1,17 +1,20 @@
 use crate::{
-    objects::{HitRecord, Hittable},
-    ray::Ray,
-    vec3::Vec3,
+    color::Color, objects::{HitRecord, Hittable}, ray::Ray, vec3::Vec3,
 };
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
+    pub color: Color,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: f64) -> Self {
-        Sphere { center, radius }
+    pub fn new(center: Vec3, radius: f64, color: Color) -> Self {
+        Sphere {
+            center,
+            radius,
+            color,
+        }
     }
 }
 
@@ -55,6 +58,6 @@ impl Hittable for Sphere {
         let point = ray.origin + ray.direction * t;
         let normal = (point - self.center).normalize();
 
-        Some(HitRecord { t, point, normal })
+        Some(HitRecord { t, point, normal, color: self.color })
     }
 }

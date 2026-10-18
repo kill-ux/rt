@@ -31,9 +31,9 @@ impl Camera {
         }
     }
 
-    pub fn get_ray(&self, px: usize, py: usize) -> Ray {
-        let u = (px as f64 / self.image_width as f64) * 2. - 1.;
-        let v = 1. - (py as f64 / self.image_height as f64) * 2.;
+    pub fn get_ray(&self, px: f64, py: f64) -> Ray {
+        let u = (px / self.image_width as f64) * 2. - 1.;
+        let v = 1. - (py / self.image_height as f64) * 2.;
 
         let aspect = self.image_width as f64 / self.image_height as f64;
 

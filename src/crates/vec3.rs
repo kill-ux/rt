@@ -1,5 +1,7 @@
 use std::ops::{Add, Sub};
 
+use rand::random;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
     pub x: f64,
@@ -8,7 +10,9 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub const ZERO: Vec3 = Vec3::new(0.,0.,0.);
+    
+    pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Vec3 { x, y, z }
     }
 
@@ -31,6 +35,26 @@ impl Vec3 {
     pub fn normalize(&self) -> Vec3 {
         let len = self.length();
         Vec3::new(self.x / len, self.y / len, self.z / len)
+    }
+
+    pub fn random_unit() -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                random::<f64>() * 2. - 1.,
+                random::<f64>() * 2. - 1.,
+                random::<f64>() * 2. - 1.,
+            );
+
+            let len_sq = p.dot(&p);
+
+            if len_sq > 1e-12 && len_sq <= 1. {
+                return p.normalize();
+            }
+        }
+    }
+
+    pub fn mul_elem(&self, other: Vec3) -> Vec3 {
+        Vec3::new(self.x * other.x, self.y * other.y, self.z * other.z)
     }
 }
 

@@ -1,27 +1,28 @@
-use crate::{
-    objects::{HitRecord, Hittable},
-    ray::Ray,
-    vec3::Vec3,
-};
+use crate::{color::Color, ray::Ray, vec3::Vec3};
 
 pub struct Plane {
     pub point: Vec3,
     pub normal: Vec3,
+    pub color: Color,
 }
 
 impl Plane {
-    pub fn new(point: Vec3, normal: Vec3) -> Self {
-        Self { point, normal }
+    pub fn new(point: Vec3, normal: Vec3, color: Color) -> Self {
+        Self {
+            point,
+            normal,
+            color,
+        }
     }
 }
 
-impl Hittable for Plane {
+impl super::Hittable for Plane {
     /// dot(P - point, normal) = 0
     /// [[<< P = O + t·D >>]]
     /// dot(O + t·D - point, normal) = 0
     ///
     /// t = dot(point - O, normal) / dot(D, normal)
-    fn hit(&self, ray: &Ray) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray) -> Option<super::HitRecord> {
         let denom = ray.direction.dot(&self.normal);
         if denom.abs() < 1e-4 {
             return None; // parallel
@@ -33,16 +34,17 @@ impl Hittable for Plane {
         }
         let hit_point = ray.origin + ray.direction * t;
 
-        let normal = if denom < 0. {
+        let normal = if denom > 0. {
             self.normal * -1.
         } else {
             self.normal
         };
 
-        Some(HitRecord {
+        Some(super::HitRecord {
             t,
             point: hit_point,
             normal,
+            color: self.color,
         })
     }
 }
