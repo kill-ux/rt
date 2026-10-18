@@ -28,11 +28,15 @@ struct Config {
     /// Samples per pixel (more = smoother but slower)
     #[arg(short, long, default_value_t = 50)]
     samples: u32,
+
+    /// sky light
+    #[arg(short, long, default_value_t = 0.3)]
+    sky: f64
 }
 
 fn main() {
     let cfg = Config::parse();
-    let (width, height, samples) = (cfg.width, cfg.height, cfg.samples);
+    let (width, height, samples, sky_strength) = (cfg.width, cfg.height, cfg.samples, cfg.sky);
 
     let mut scene = Scene::new(Light::new(Vec3::new(5.0, 5.0, -5.0), 1.0));
 
@@ -69,7 +73,7 @@ fn main() {
                             px as f64 + rand::random::<f64>(),
                             py as f64 + rand::random::<f64>(),
                         );
-                        sum = sum + trace(&ray, &scene, max_depth);
+                        sum = sum + trace(&ray, &scene, max_depth, sky_strength);
                     }
 
                     let c = sum * (1.0 / samples as f64);

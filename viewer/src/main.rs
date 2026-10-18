@@ -26,7 +26,7 @@ fn main() -> Result<()> {
     let max_depth = 5;
 
     // Use 1 sample per pixel for real-time performance (increase if your CPU is very fast)
-    let samples = 1;
+    let samples = 4;
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // --- Handle Input ---
@@ -112,7 +112,7 @@ fn main() -> Result<()> {
 
                     for _ in 0..samples {
                         let ray = camera.get_ray(px as f64, py as f64);
-                        let traced = trace(&ray, &scene, max_depth);
+                        let traced = trace(&ray, &scene, max_depth, 1.);
                         sum = sum + traced;
                     }
 
