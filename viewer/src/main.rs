@@ -1,7 +1,9 @@
+
 use anyhow::Result;
 use minifb::{Key, Window, WindowOptions};
+use rand::random;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use rt::{Camera, Color, Light, Plane, Scene, Sphere, Vec3, renderer::trace};
+use rt::{Camera, Color, Cube, Light, Plane, Scene, Sphere, Vec3, renderer::trace};
 
 fn main() -> Result<()> {
     let width = 400;
@@ -22,11 +24,12 @@ fn main() -> Result<()> {
     let mut radius = 5.0;
     let mut angle = 0.0;
     let mut cam_height = 0.0;
-    let sphere_center = Vec3::new(0.0, 0.0, -5.0);
+    let focal_center = Vec3::new(0.0, 0.0, -5.0); // Point the camera orbits around
     let max_depth = 5;
+    let sky_val = 0.0;
 
-    // Use 1 sample per pixel for real-time performance (increase if your CPU is very fast)
-    let samples = 4;
+    // 1 sample per pixel for smooth real-time performance
+    let samples = 1;
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
         // --- Handle Input ---
@@ -77,25 +80,28 @@ fn main() -> Result<()> {
         }
 
         // Calculate camera position and look direction
-        let cam_x = sphere_center.x + radius * angle.sin();
-        let cam_z = sphere_center.z + radius * angle.cos();
+        let cam_x = focal_center.x + radius * angle.sin();
+        let cam_z = focal_center.z + radius * angle.cos();
         let cam_pos = Vec3::new(cam_x, cam_height, cam_z);
-        let look_dir = (sphere_center - cam_pos).normalize();
+        let look_dir = (focal_center - cam_pos).normalize();
 
         let camera = Camera::new(cam_pos, look_dir, Vec3::new(0.0, 1.0, 0.0), width, height);
 
-        // --- Build Scene ---
+        // --- Build Scene with your new objects ---
         let mut scene = Scene::new(Light::new(light_pos, 1.0));
+
         scene.add(Box::new(Sphere::new(
-            Vec3::new(0.0, 0.0, -5.0),
+            Vec3::new(-2.0, 0.0, -5.0),
             1.0,
-            Color::new(0.996, 0.310, 0.176),
+            Color::new(0.8, 0.1, 0.1),
         )));
-        scene.add(Box::new(Sphere::new(
-            Vec3::new(3.0, -1., -5.0),
-            1.0,
-            Color::new(0.9, 0.2, 0.2),
+
+        scene.add(Box::new(Cube::new(
+            Vec3::new(2., 0., -6.),
+            2.,
+            Color::new(0.1, 0.3, 0.8),
         )));
+
         scene.add(Box::new(Plane::new(
             Vec3::new(0., -1., 0.),
             Vec3::new(0., 1., 0.),
@@ -111,8 +117,9 @@ fn main() -> Result<()> {
                     let mut sum = Vec3::new(0.0, 0.0, 0.0);
 
                     for _ in 0..samples {
-                        let ray = camera.get_ray(px as f64, py as f64);
-                        let traced = trace(&ray, &scene, max_depth, 1.);
+                        let ray = camera
+                            .get_ray(px as f64 + random::<f64>(), py as f64 + random::<f64>());
+                        let traced = trace(&ray, &scene, max_depth, sky_val);
                         sum = sum + traced;
                     }
 
@@ -134,3 +141,4 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+

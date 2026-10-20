@@ -4,7 +4,7 @@ pub use crates::*;
 pub use camera::Camera;
 pub use color::Color;
 pub use light::Light;
-pub use objects::{plane::Plane, sphere::Sphere};
+pub use objects::{plane::Plane, sphere::Sphere, cube::Cube};
 pub use scene::Scene;
 pub use vec3::Vec3;
 
