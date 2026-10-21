@@ -1,5 +1,8 @@
 use crate::{
-    color::Color, objects::{HitRecord, Hittable}, ray::Ray, vec3::Vec3,
+    color::Color,
+    objects::{HitRecord, Hittable},
+    ray::Ray,
+    vec3::Vec3,
 };
 
 pub struct Sphere {
@@ -58,6 +61,11 @@ impl Hittable for Sphere {
         let point = ray.origin + ray.direction * t;
         let normal = (point - self.center).normalize();
 
-        Some(HitRecord { t, point, normal, color: self.color })
+        Some(HitRecord {
+            t,
+            point,
+            normal,
+            color: self.color,
+        })
     }
 }

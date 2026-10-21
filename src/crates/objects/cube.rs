@@ -42,11 +42,9 @@ impl Hittable for Cube {
                 continue;
             }
 
-            
             let mut t0 = (lo[i] - o[i]) / d[i];
             let mut t1 = (hi[i] - o[i]) / d[i];
 
-           
             let mut n0 = match i {
                 0 => Vec3::new(-1.0, 0.0, 0.0),
                 1 => Vec3::new(0.0, -1.0, 0.0),

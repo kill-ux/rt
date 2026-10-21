@@ -1,9 +1,8 @@
-
 use anyhow::Result;
 use minifb::{Key, Window, WindowOptions};
 use rand::random;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use rt::{Camera, Color, Cube, Light, Plane, Scene, Sphere, Vec3, renderer::trace};
+use rt::{Camera, Color, Cube, Cylinder, Light, Plane, Scene, Sphere, Vec3, renderer::trace};
 
 fn main() -> Result<()> {
     let width = 400;
@@ -96,6 +95,13 @@ fn main() -> Result<()> {
             Color::new(0.8, 0.1, 0.1),
         )));
 
+        scene.add(Box::new(Cylinder::new(
+            Vec3::new(0.0, 2., -6.0),
+            1.0,
+            3.0,
+            Color::new(0.9, 0.5, 0.1),
+        )));
+
         scene.add(Box::new(Cube::new(
             Vec3::new(2., 0., -6.),
             2.,
@@ -141,4 +147,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-

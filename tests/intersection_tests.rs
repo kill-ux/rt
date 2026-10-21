@@ -1,71 +1,236 @@
-#[cfg(test)]
-mod tests {
-    use rt::{
-        objects::{Hittable, sphere::Sphere},
-        ray::Ray,
-        vec3::Vec3,
-    };
+use rt::{
+    color::Color,
+    light::Light,
+    objects::{Hittable, cube::Cube, cylinder::Cylinder, plane::Plane, sphere::Sphere},
+    ray::Ray,
+    scene::Scene,
+    vec3::Vec3,
+};
 
-    #[test]
-    fn ray_hits_sphere_and_returns_nearest_t() {
-        let sphere = Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0);
+fn approx(a: f64, b: f64) -> bool {
+    (a - b).abs() < 1e-6
+}
 
-        let ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, -1.0));
+fn color() -> Color {
+    Color::new(1.0, 1.0, 1.0)
+}
 
-        let hit = sphere.hit(&ray);
+// a ray from `origin` going toward `dir` (does not need to be normalized)
+fn ray(origin: (f64, f64, f64), dir: (f64, f64, f64)) -> Ray {
+    Ray::new(
+        Vec3::new(origin.0, origin.1, origin.2),
+        Vec3::new(dir.0, dir.1, dir.2).normalize(),
+    )
+}
 
-        assert!(hit.is_some());
+// ---------- sphere ----------
 
-        let h = hit.unwrap();
+fn sphere() -> Sphere {
+    Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0, color())
+}
 
-        // The ray enters at z = -4, so t must be 4.
-        assert!((h.t - 4.0).abs() < 0.000_001);
-    }
+#[test]
+fn sphere_hit_from_front() {
+    let hit = sphere()
+        .hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, -1.0)))
+        .unwrap();
+    assert!(approx(hit.t, 4.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 0.0, 1.0));
+}
 
-    #[test]
-    fn ray_misses_sphere() {
-        let sphere = Sphere::new(Vec3::new(0.0, 0.0, -5.0), 1.0);
+#[test]
+fn sphere_miss() {
+    assert!(
+        sphere()
+            .hit(&ray((0.0, 0.0, 0.0), (0.0, 1.0, 0.0)))
+            .is_none()
+    );
+}
 
-        let ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 1.0, 0.0));
+#[test]
+fn sphere_behind_the_ray_is_not_hit() {
+    assert!(
+        sphere()
+            .hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, 1.0)))
+            .is_none()
+    );
+}
 
-        let hit = sphere.hit(&ray);
+#[test]
+fn moved_sphere_is_hit_at_its_new_position() {
+    let s = Sphere::new(Vec3::new(3.0, 0.0, -5.0), 1.0, color());
+    assert!(s.hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, -1.0))).is_none());
+    assert!(s.hit(&ray((3.0, 0.0, 0.0), (0.0, 0.0, -1.0))).is_some());
+}
 
-        assert_eq!(hit, None);
-    }
+// ---------- plane ----------
 
-    #[test]
-    fn ray_starting_inside_sphere_uses_t2() {
-        let sphere = Sphere::new(Vec3::new(0.0, 0.0, 0.0), 1.0);
+fn floor() -> Plane {
+    Plane::new(Vec3::new(0.0, -1.0, 0.0), Vec3::new(0.0, 1.0, 0.0), color())
+}
 
-        let ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 0.0));
+#[test]
+fn plane_hit_from_above() {
+    let hit = floor()
+        .hit(&ray((0.0, 0.0, 0.0), (0.0, -1.0, 0.0)))
+        .unwrap();
+    assert!(approx(hit.t, 1.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 1.0, 0.0));
+}
 
-        let hit = sphere.hit(&ray);
+#[test]
+fn plane_hit_from_below_flips_the_normal() {
+    let hit = floor()
+        .hit(&ray((0.0, -3.0, 0.0), (0.0, 1.0, 0.0)))
+        .unwrap();
+    assert!(approx(hit.t, 2.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, -1.0, 0.0));
+}
 
-        assert!(hit.is_some());
+#[test]
+fn plane_parallel_ray_misses() {
+    assert!(
+        floor()
+            .hit(&ray((0.0, 0.0, 0.0), (1.0, 0.0, 0.0)))
+            .is_none()
+    );
+}
 
-        let h = hit.unwrap();
+#[test]
+fn plane_behind_the_ray_is_not_hit() {
+    assert!(
+        floor()
+            .hit(&ray((0.0, 0.0, 0.0), (0.0, 1.0, 0.0)))
+            .is_none()
+    );
+}
 
-        // t1 = -1: behind ray origin.
-        // t2 =  1: the ray exits the sphere here.
-        assert!((h.t - 1.0).abs() < 0.000_001);
-    }
-    
+// ---------- cube ----------
 
-    #[test]
-    fn ray_far_from_sphere_returns_nearest_hit() {
-        let sphere = Sphere::new(Vec3::new(0.0, 0.0, -10.0), 1.0);
+fn cube() -> Cube {
+    Cube::new(Vec3::new(0.0, 0.0, -5.0), 2.0, color())
+}
 
-        let ray = Ray::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, -1.0));
+#[test]
+fn cube_hit_front_face() {
+    let hit = cube().hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, -1.0))).unwrap();
+    assert!(approx(hit.t, 4.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 0.0, 1.0));
+}
 
-        let hit = sphere.hit(&ray);
+#[test]
+fn cube_hit_side_face() {
+    let hit = cube()
+        .hit(&ray((-5.0, 0.0, -5.0), (1.0, 0.0, 0.0)))
+        .unwrap();
+    assert!(approx(hit.t, 4.0));
+    assert_eq!(hit.normal, Vec3::new(-1.0, 0.0, 0.0));
+}
 
-        assert!(hit.is_some());
+#[test]
+fn cube_miss() {
+    assert!(
+        cube()
+            .hit(&ray((0.0, 3.0, 0.0), (0.0, 0.0, -1.0)))
+            .is_none()
+    );
+}
 
-        let h = hit.unwrap();
+#[test]
+fn cube_hit_from_inside_returns_the_wall() {
+    let hit = cube()
+        .hit(&ray((0.0, 0.0, -5.0), (0.0, 0.0, -1.0)))
+        .unwrap();
+    assert!(approx(hit.t, 1.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 0.0, -1.0)); // outward normal
+}
 
-        // Near surface is at z = -9.
-        // With direction (0, 0, -1), P(t) = (0, 0, -t).
-        // P(9) = (0, 0, -9): first point that touches the sphere.
-        assert!((h.t - 9.0).abs() < 0.000_001);
-    }
+// ---------- cylinder (center is the middle of the cylinder) ----------
+
+fn cylinder() -> Cylinder {
+    Cylinder::new(Vec3::new(0.0, 0.0, -5.0), 1.0, 2.0, color())
+}
+
+#[test]
+fn cylinder_hit_on_the_side() {
+    let hit = cylinder()
+        .hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, -1.0)))
+        .unwrap();
+    assert!(approx(hit.t, 4.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 0.0, 1.0));
+}
+
+#[test]
+fn cylinder_hit_on_the_top_cap() {
+    // a vertical ray (parallel to the axis) from above
+    let hit = cylinder()
+        .hit(&ray((0.0, 5.0, -5.0), (0.0, -1.0, 0.0)))
+        .unwrap();
+    assert!(approx(hit.t, 4.0));
+    assert_eq!(hit.normal, Vec3::new(0.0, 1.0, 0.0));
+}
+
+#[test]
+fn cylinder_ray_above_the_top_misses() {
+    assert!(
+        cylinder()
+            .hit(&ray((0.0, 3.0, 0.0), (0.0, 0.0, -1.0)))
+            .is_none()
+    );
+}
+
+#[test]
+fn cylinder_vertical_ray_outside_the_circle_misses() {
+    assert!(
+        cylinder()
+            .hit(&ray((3.0, 5.0, -5.0), (0.0, -1.0, 0.0)))
+            .is_none()
+    );
+}
+
+// ---------- scene: closest hit and shadows ----------
+
+#[test]
+fn closest_hit_picks_the_nearer_object() {
+    let mut scene = Scene::new(Light::new(Vec3::new(0.0, 10.0, 0.0), 1.0));
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -10.0),
+        1.0,
+        color(),
+    ))); // far
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 0.0, -5.0),
+        1.0,
+        color(),
+    ))); // near
+
+    let hit = scene
+        .closest_hit(&ray((0.0, 0.0, 0.0), (0.0, 0.0, -1.0)))
+        .unwrap();
+    assert!(approx(hit.t, 4.0));
+}
+
+#[test]
+fn point_under_an_object_is_in_shadow() {
+    let mut scene = Scene::new(Light::new(Vec3::new(0.0, 5.0, 0.0), 1.0));
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 2.0, 0.0),
+        1.0,
+        color(),
+    )));
+
+    assert!(scene.is_shadowed(Vec3::new(0.0, 0.0, 0.0))); // blocked by the sphere
+    assert!(!scene.is_shadowed(Vec3::new(5.0, 0.0, 0.0))); // clear line to the lamp
+}
+
+#[test]
+fn an_object_behind_the_light_casts_no_shadow() {
+    let mut scene = Scene::new(Light::new(Vec3::new(0.0, 3.0, 0.0), 1.0));
+    scene.add(Box::new(Sphere::new(
+        Vec3::new(0.0, 8.0, 0.0),
+        1.0,
+        color(),
+    )));
+
+    assert!(!scene.is_shadowed(Vec3::new(0.0, 0.0, 0.0)));
 }

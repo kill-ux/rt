@@ -22,28 +22,17 @@ impl Scene {
         self.objects.push(objcet);
     }
 
-    // pub fn closest_hit(&self, ray: &Ray) -> Option<HitRecord> {
-    //     let mut closest: Option<HitRecord> = None;
-    //     for obj in &self.objects {
-    //         if let Some(hit) = obj.hit(ray)
-    //             && closest.as_ref().map_or(true, |c| hit.t < c.t)
-    //         {
-    //             closest = Some(hit)
-    //         }
-    //     }
-    //     closest
-    // }
-
     pub fn closest_hit(&self, ray: &Ray) -> Option<HitRecord> {
         let mut closest_t = f64::INFINITY;
         let mut closest: Option<HitRecord> = None;
 
         for object in &self.objects {
-            if let Some(hit) = object.hit(ray) {
-                if hit.t > 0.0 && hit.t < closest_t {
-                    closest_t = hit.t;
-                    closest = Some(hit);
-                }
+            if let Some(hit) = object.hit(ray)
+                && hit.t > 0.0
+                && hit.t < closest_t
+            {
+                closest_t = hit.t;
+                closest = Some(hit);
             }
         }
 
