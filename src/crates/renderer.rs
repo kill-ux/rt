@@ -1,4 +1,4 @@
-use crate::{Color, Scene, Vec3, ray::Ray};
+use crate::{Scene, Vec3, ray::Ray};
 
 pub fn trace(ray: &Ray, scene: &Scene, depth: u32, sky_strength: f64) -> Vec3 {
     if depth == 0 {

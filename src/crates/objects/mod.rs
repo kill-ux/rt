@@ -1,6 +1,7 @@
+pub mod cube;
+pub mod cylinder;
 pub mod plane;
 pub mod sphere;
-pub mod cube;
 use crate::{color::Color, ray::Ray, vec3::Vec3};
 
 #[derive(Debug, PartialEq)]
