@@ -6,6 +6,7 @@ pub struct Cube {
     pub min: Vec3, // minimum corner of the cube
     pub max: Vec3, // maximum corner of the cube
     pub color: Color,
+    pub reflectivity: f64
 }
 
 impl Cube {
@@ -15,7 +16,13 @@ impl Cube {
             min: center - Vec3::new(h, h, h),
             max: center + Vec3::new(h, h, h),
             color,
+            reflectivity: 0.
         }
+    }
+
+    pub fn with_reflectivity(mut self, r: f64) -> Self {
+        self.reflectivity =  r.clamp(0.0, 1.);
+        self
     }
 }
 
@@ -88,6 +95,7 @@ impl Hittable for Cube {
             point: ray.origin + ray.direction * t,
             normal,
             color: self.color,
+            reflectivity: self.reflectivity
         })
     }
 }

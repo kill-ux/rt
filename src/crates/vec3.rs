@@ -56,6 +56,11 @@ impl Vec3 {
     pub fn mul_elem(&self, other: Vec3) -> Vec3 {
         Vec3::new(self.x * other.x, self.y * other.y, self.z * other.z)
     }
+
+    /// R=D−2(D⋅N)N
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        *self - *normal * (2.0 * self.dot(normal))
+    }
 }
 
 impl Sub for Vec3 {

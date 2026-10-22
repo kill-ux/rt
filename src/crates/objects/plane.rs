@@ -4,6 +4,7 @@ pub struct Plane {
     pub point: Vec3,
     pub normal: Vec3,
     pub color: Color,
+    pub reflectivity: f64
 }
 
 impl Plane {
@@ -12,7 +13,14 @@ impl Plane {
             point,
             normal,
             color,
+            reflectivity: 0.
         }
+    }
+
+
+    pub fn with_reflectivity(mut self, r: f64) -> Self {
+        self.reflectivity =  r.clamp(0.0, 1.);
+        self
     }
 }
 
@@ -45,6 +53,7 @@ impl super::Hittable for Plane {
             point: hit_point,
             normal,
             color: self.color,
+            reflectivity: self.reflectivity
         })
     }
 }

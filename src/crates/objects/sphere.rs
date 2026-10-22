@@ -9,6 +9,7 @@ pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
     pub color: Color,
+    pub reflectivity: f64,
 }
 
 impl Sphere {
@@ -17,7 +18,14 @@ impl Sphere {
             center,
             radius,
             color,
+            reflectivity: 0.,
         }
+    }
+
+
+    pub fn with_reflectivity(mut self, r: f64) -> Self {
+        self.reflectivity =  r.clamp(0.0, 1.);
+        self
     }
 }
 
@@ -66,6 +74,8 @@ impl Hittable for Sphere {
             point,
             normal,
             color: self.color,
+            reflectivity: self.reflectivity,
         })
     }
 }
+

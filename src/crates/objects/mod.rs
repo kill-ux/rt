@@ -10,6 +10,7 @@ pub struct HitRecord {
     pub point: Vec3,  // where the ray hit
     pub normal: Vec3, // surface normal at that point
     pub color: Color,
+    pub reflectivity: f64,
 }
 
 pub trait Hittable: Send + Sync {

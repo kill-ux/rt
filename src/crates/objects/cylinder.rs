@@ -5,6 +5,7 @@ pub struct Cylinder {
     pub radius: f64,
     pub height: f64,
     pub color: Color,
+    pub reflectivity: f64
 }
 
 impl Cylinder {
@@ -14,7 +15,13 @@ impl Cylinder {
             radius,
             height,
             color,
+            reflectivity: 0.
         }
+    }
+
+    pub fn with_reflectivity(mut self, r: f64) -> Self {
+        self.reflectivity =  r.clamp(0.0, 1.);
+        self
     }
 }
 
@@ -101,6 +108,7 @@ impl super::Hittable for Cylinder {
             point: ray.origin + ray.direction * best_t,
             normal: best_normal,
             color: self.color,
+            reflectivity: self.reflectivity
         })
     }
 }

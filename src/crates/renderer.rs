@@ -26,6 +26,17 @@ pub fn trace(ray: &Ray, scene: &Scene, depth: u32, sky_strength: f64) -> Vec3 {
                 normal.dot(&light_dir).max(0.0) * scene.light.intensity
             };
 
+            // Reflection
+            let reflected_color = if hit.reflectivity > 0. {
+                let reflect_dir = ray.direction.reflect(&normal).normalize();
+                let reflect_origin = hit.point + normal * 1e-4;
+
+                let reflect_ray = Ray::new(reflect_origin, reflect_dir);
+                trace(&reflect_ray, scene, depth - 1, sky_strength)
+            } else {
+                Vec3::ZERO
+            };
+
             // indirect light
             let mut dir = normal + Vec3::random_unit();
             if dir.dot(&dir) < 1e-12 {
@@ -36,8 +47,11 @@ pub fn trace(ray: &Ray, scene: &Scene, depth: u32, sky_strength: f64) -> Vec3 {
             let bounced = Ray::new(shadow_origin, dir.normalize());
             let indirect = trace(&bounced, scene, depth - 1, sky_strength);
 
-            hit.color
-                .mul_elem(Vec3::new(direct, direct, direct) + indirect)
+            let local_color = hit.color
+                .mul_elem(Vec3::new(direct, direct, direct) + indirect);
+
+            let reflection = reflected_color * hit.reflectivity;
+            local_color * (1. - hit.reflectivity) + reflection
         }
         None => {
             // eprintln!("MISS");

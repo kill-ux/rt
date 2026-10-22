@@ -44,6 +44,9 @@ pub struct Config {
     /// Point the camera looks at, as x,y,z (overrides the default)
     #[arg(long, value_parser = parse_vec3, allow_hyphen_values = true)]
     pub look_at: Option<Vec3>,
+
+    #[arg(long)]
+    pub reflect: bool,
 }
 
 pub fn unit_range(s: &str) -> Result<f64, String> {
